@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dream Quest Event Essentials – Quotation System</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{--g:#d4a22e;--gl:#f3d37a;--bd:#c9a24a;--k:#050505;--bg:#f4f1ec;--tx:#1a1a1a}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--tx)}
+.gt{background:linear-gradient(180deg,#f6dc8a,#c8922a 55%,#e8b84a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.app{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+aside{background:var(--k);color:var(--g);padding:18px 12px;position:sticky;top:0;height:100vh}
+aside h1{font:700 15px Cinzel,serif;letter-spacing:.15em;text-align:center;margin:4px 0 20px;line-height:1.5}
+aside button{display:block;width:100%;text-align:left;background:none;border:0;border-left:3px solid transparent;color:#d9c48a;padding:12px 14px;font:600 14px Arial;cursor:pointer;border-radius:0 6px 6px 0}
+aside button.on,aside button:hover{background:#1a1508;color:var(--gl);border-left-color:var(--g)}
+main{padding:24px;min-width:0}
+h2{font:700 24px Cinzel,serif;margin:0 0 18px}
+.card{background:#fff;border:1px solid var(--bd);border-radius:6px;padding:16px;margin-bottom:16px}
+.btn{background:var(--k);color:var(--g);border:1px solid var(--g);padding:9px 16px;font:700 13px Arial;cursor:pointer;border-radius:4px}
+.btn:hover{background:var(--g);color:var(--k)}
+.btn.sm{padding:6px 10px;font-size:12px}.btn.red{border-color:#a33;color:#e66}.btn.red:hover{background:#a33;color:#fff}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:var(--k);color:var(--g);padding:16px;border-radius:6px}.stat b{display:block;font-size:24px;margin-top:6px}
+.empty{text-align:center;padding:50px 16px}.empty h3{font:700 22px Cinzel,serif;margin:0 0 8px}.empty p{color:#666;margin:0 0 18px}
+label{display:block;font-size:12px;font-weight:700;margin:0 0 4px;text-transform:uppercase}
+input,textarea,select{width:100%;padding:8px;border:1px solid #bbb;border-radius:4px;font:14px Arial}
+input:focus,textarea:focus{outline:2px solid var(--g)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.lines{width:100%;border-collapse:collapse}.lines td{padding:3px}.lines th{font-size:11px;text-align:left;padding:3px}
+.lines .amt{text-align:right;white-space:nowrap;font-weight:700;min-width:70px}
+.scroll{overflow-x:auto}
+table.list{width:100%;border-collapse:collapse;background:#fff}
+.list th{background:var(--k);color:var(--g);text-align:left;padding:10px;font-size:12px}
+.list td{padding:10px;border-bottom:1px solid #e5dcc4;font-size:14px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;overflow:auto;padding:20px;z-index:9}
+.modal.on{display:block}.modal .in{max-width:760px;margin:0 auto}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--k);color:var(--g);padding:12px 18px;border:1px solid var(--g);border-radius:4px;display:none;z-index:99}
+/* ===== QUOTATION DOCUMENT (reference design) ===== */
+.qd{width:720px;background:#fff;font-family:Arial,Helvetica,sans-serif;color:#000;margin:0 auto;zoom:var(--z,1)}
+.qd .hd{background:#000;display:flex;align-items:center;height:200px;position:relative}
+.qd .lg{width:300px;text-align:center;padding-top:6px}
+.qd .dq{font:400 104px/0.9 Cinzel,serif;position:relative;display:inline-block;letter-spacing:-4px}
+.qd .sp{position:absolute;color:var(--gl);font-size:28px;-webkit-text-fill-color:var(--gl)}
+.qd .dn{font:400 21px Cinzel,serif;letter-spacing:.32em;color:var(--g);margin-top:4px}
+.qd .en{display:flex;align-items:center;gap:10px;justify-content:center;color:var(--g);font:400 10px Cinzel,serif;letter-spacing:.3em;margin-top:6px}
+.qd .en i{width:48px;height:1px;background:var(--g)}
+.qd .vl{width:2px;height:170px;background:linear-gradient(#5a4310,var(--g),#5a4310);margin:0 4px}
+.qd .qt{flex:1;text-align:center;font:700 56px Cinzel,serif;position:relative}
+.qd .sw{display:block;width:100%;height:36px;margin-top:-1px}
+.qd .inf{display:grid;grid-template-columns:150px 22px 1fr;row-gap:12px;padding:12px 8px 20px;font-size:14px;align-items:end}
+.qd .inf b{font-size:15px;text-transform:uppercase}
+.qd .inf span{font-size:11px;text-decoration:underline;padding-left:4px;word-break:break-word}
+.qd table{border-collapse:collapse;width:100%}
+.qd th{background:#000;color:var(--g);font-size:11px;padding:12px 6px;border:1px solid var(--bd);text-transform:uppercase}
+.qd td{border:1px solid var(--bd);text-align:center;font-size:12px;padding:10px 6px;height:34px}
+.qd .tot td{border:0;background:#080808;color:var(--g);font-weight:700;height:36px}
+.qd .tot .v{font-size:17px}
+.qd .tot td.nb{background:#fff}
+.qd .fh{display:inline-block;background:#000;color:var(--g);font-weight:700;font-size:12px;padding:14px 16px;margin-top:12px;width:122px}
+.qd .ft{display:flex}
+.qd .ft div{background:#080808;color:var(--g);font-weight:700;font-size:12px;padding:12px 4px;text-align:center}
+.qd .gt2{display:flex;margin-top:0}
+.qd .gt2 .l{width:122px;border:1px solid var(--bd);font:700 18px/1.25 Arial;text-align:center;padding:10px;display:flex;align-items:center;justify-content:center;color:#000}
+.qd .gt2 .r{width:128px;background:#080808;color:var(--g);font:700 21px Arial;display:flex;align-items:center;justify-content:center}
+.qd .nt{width:250px;border:1px solid var(--bd);padding:6px 8px;font-size:11px;margin:0 0 20px;line-height:1.5}
+.qd .nt b{font-size:11px}
+.qd .fo{background:#000;display:flex;align-items:center;gap:16px;padding:16px 14px;color:#fff;min-height:72px}
+.qd .fo .sc{font:400 26px 'Great Vibes',cursive;color:var(--g);flex:1}
+.qd .fo .ln{width:1px;align-self:stretch;background:var(--g)}
+.qd .fo .ct{flex:1.1;font-size:14px;line-height:1.9}
+.qd .fo .ic{display:inline-block;width:20px;height:20px;border:1px solid var(--g);border-radius:50%;color:var(--g);font-size:11px;text-align:center;line-height:18px;margin-right:10px}
+#pa{display:none}#pa.cap{display:block;position:fixed;left:-9999px;top:0}
+@media(max-width:800px){.app{grid-template-columns:1fr}
+aside{position:static;height:auto;display:flex;overflow-x:auto;padding:8px;gap:4px;align-items:center}
+aside h1{display:none}aside button{width:auto;white-space:nowrap;border-left:0;border-bottom:3px solid transparent;border-radius:0}
+aside button.on{border-bottom-color:var(--g)}main{padding:14px}}
+@media print{body>*:not(#pa){display:none!important}#pa{display:block!important;position:static}.qd{zoom:1!important}@page{margin:8mm}}
+</style></head><body>
+<div class="app">
+<aside><h1 class="gt">DREAM QUEST<br>QUOTATIONS</h1>
+<button data-v="dash">Dashboard</button><button data-v="new">Create Quotation</button><button data-v="list">Quotations</button><button data-v="cust">Customers</button><button data-v="set">Settings</button></aside>
+<main id="main"></main></div>
+<div class="modal" id="modal"><div class="in"><div class="row" style="margin-bottom:10px" id="mbar"></div><div id="mbody"></div></div></div>
+<div id="pa"></div><div class="toast" id="toast"></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const N=x=>Number(x)||0, M=x=>N(x).toLocaleString('en-US',{maximumFractionDigits:2});
+const DEF={q:[],c:[],s:{phone:'0915-801-5214',fb:'DQ Event Essentials',tag:'your partner in every celebration',note:'Delivery fee includes both delivery and pick up.',origin:'',rate:''}};
+let D;try{D=JSON.parse(localStorage.getItem('dqdata'))||structuredClone(DEF)}catch(e){D=structuredClone(DEF)}
+D.s={...DEF.s,...D.s};
+const save=()=>{try{localStorage.setItem('dqdata',JSON.stringify(D))}catch(e){toast('Storage unavailable')}};
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2200)}
+const fdate=d=>d?new Date(d+'T00:00').toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}):'';
+const sub=q=>q.items.reduce((a,i)=>a+N(i.q)*N(i.u),0);
+const feeT=q=>q.fees.reduce((a,f)=>a+N(f.km)*N(f.rate),0);
+const grand=q=>sub(q)+feeT(q);
+
+function docHTML(q){const s=D.s;
+const rows=q.items.filter(i=>i.d||N(i.q)||N(i.u)).map(i=>`<tr><td>${esc(i.d)}</td><td>${N(i.q)} pcs</td><td>${M(i.u)}</td><td>${M(N(i.q)*N(i.u))}</td></tr>`).join('')||'<tr><td colspan="4">&nbsp;</td></tr>';
+const fr=q.fees.filter(f=>f.o||f.t||N(f.km)||N(f.rate)).map(f=>`<tr><td>${esc(f.o)}</td><td>${esc(f.t)}</td><td>${M(f.km)}</td><td>${M(f.rate)}</td><td>${M(N(f.km)*N(f.rate))}</td></tr>`).join('');
+const fee=feeT(q);
+return `<div class="qd"><div class="hd"><div class="lg"><div class="dq gt">DQ<span class="sp" style="right:-22px;top:-4px">✦</span></div><div class="dn">DREAM QUEST</div><div class="en"><i></i>EVENT ESSENTIALS<i></i></div></div><div class="vl"></div><div class="qt gt">QUOTATION<span class="sp" style="right:-4px;top:2px;font-size:22px">✦</span></div></div>
+<svg class="sw" viewBox="0 0 720 36" preserveAspectRatio="none"><rect width="720" height="36" fill="#f7eee9"/><path d="M0 0H720V10C520 34 220 40 0 12Z" fill="#000"/><path d="M0 12C220 40 520 34 720 10" fill="none" stroke="#d4a22e" stroke-width="3"/></svg>
+<div class="inf"><b>Name</b><b>:</b><span>${esc(q.name)}</span><b>Event</b><b>:</b><span>${esc(q.event)}</span><b>Address</b><b>:</b><span>${esc(q.addr)}</span><b>Delivery Date</b><b>:</b><span>${esc(fdate(q.date))}</span></div>
+<table style="margin-top:8px"><thead><tr><th style="width:30%">Description</th><th>Qty.</th><th>Unit Price (Php)</th><th>Amount (Php)</th></tr></thead><tbody>${rows}</tbody>
+<tfoot><tr class="tot"><td class="nb" colspan="2"></td><td>TOTAL</td><td class="v">${M(sub(q))}</td></tr></tfoot></table>
+<div class="fh">DELIVERY FEE</div>
+<table><thead><tr><th>Origin</th><th>Destination</th><th>Distance (Km.)</th><th>Rate per Km</th><th>Amount (Php)</th></tr></thead><tbody>${fr||'<tr><td colspan="5">&nbsp;</td></tr>'}</tbody></table>
+<div class="ft"><div style="width:122px">DELIVERY FEE TOTAL</div><div style="width:128px">${M(fee)}</div></div>
+<div class="gt2"><div class="l">GRAND<br>TOTAL</div><div class="r">${M(grand(q))}</div></div>
+<div class="nt"><b>📌 NOTES:</b><br>${esc(q.notes).replace(/\n/g,'<br>')}</div>
+<div class="fo"><div class="sc">${esc(s.tag)}</div><div class="ln"></div><div class="ct"><div><span class="ic">✆</span>${esc(s.phone)}</div><div><span class="ic">f</span>${esc(s.fb)}</div></div></div></div>`}
+
+/* ---------- views ---------- */
+let view='dash',editId=null;
+function go(v,id){view=v;editId=id||null;document.querySelectorAll('aside button').forEach(b=>b.classList.toggle('on',b.dataset.v===(v==='edit'?'new':v)));render();scrollTo(0,0)}
+document.querySelectorAll('aside button').forEach(b=>b.onclick=()=>go(b.dataset.v));
+function render(){const m=$('#main');({dash,new:form,edit:form,list,cust,set})[view](m);fit()}
+function fit(){document.querySelectorAll('.qd').forEach(e=>{const w=(e.parentElement.clientWidth||720);e.style.setProperty('--z',Math.min(1,w/720))})}
+addEventListener('resize',fit);
+
+function dash(m){const n=D.q.length;
+if(!n){m.innerHTML=`<h2>Dashboard</h2><div class="card empty"><h3>No orders yet</h3><p>Create your first quotation to get started.</p><button class="btn" onclick="go('new')">+ Create New Quotation</button></div>`;return}
+const tv=D.q.reduce((a,q)=>a+grand(q),0);
+m.innerHTML=`<h2>Dashboard</h2><div class="stats"><div class="stat">Quotations<b>${n}</b></div><div class="stat">Total Value<b>₱${M(tv)}</b></div><div class="stat">Customers<b>${D.c.length}</b></div></div><div class="row" style="margin-bottom:12px"><button class="btn" onclick="go('new')">+ Create New Quotation</button></div><h3 style="font-family:Cinzel,serif">Recent Quotations</h3>${table(D.q.slice(-5).reverse())}`}
+
+function table(a){return `<div class="scroll"><table class="list"><thead><tr><th>Customer</th><th>Event</th><th>Delivery Date</th><th>Total (₱)</th><th>Actions</th></tr></thead><tbody>${a.map(q=>`<tr><td>${esc(q.name)}</td><td>${esc(q.event)}</td><td>${esc(fdate(q.date))}</td><td>${M(grand(q))}</td><td><div class="row"><button class="btn sm" onclick="viewQ('${q.id}')">View</button><button class="btn sm" onclick="go('edit','${q.id}')">Edit</button><button class="btn sm" onclick="printQ('${q.id}')">Print</button><button class="btn sm" onclick="dlQ('${q.id}')">Download</button><button class="btn sm red" onclick="delQ('${q.id}')">Delete</button></div></td></tr>`).join('')}</tbody></table></div>`}
+
+function list(m){m.innerHTML=`<h2>Quotations</h2>`+(D.q.length?`<input id="srch" placeholder="Search by customer or event…" style="margin-bottom:12px"><div id="ql">${table(D.q.slice().reverse())}</div>`:`<div class="card empty"><h3>No quotations yet</h3><p>Saved quotations will appear here.</p><button class="btn" onclick="go('new')">+ Create New Quotation</button></div>`);
+const s=$('#srch');if(s)s.oninput=()=>{const t=s.value.toLowerCase();$('#ql').innerHTML=table(D.q.slice().reverse().filter(q=>(q.name+q.event).toLowerCase().includes(t)))}}
+
+const itemRow=(i={})=>`<tr class="ir"><td><input class="d" value="${esc(i.d)}" placeholder="e.g. Monoblock Chairs"></td><td style="width:80px"><input class="q" type="number" min="0" value="${i.q??''}"></td><td style="width:100px"><input class="u" type="number" min="0" step="any" value="${i.u??''}"></td><td class="amt">0</td><td><button type="button" class="btn sm red" onclick="this.closest('tr').remove();upd()">×</button></td></tr>`;
+const feeRow=(f={})=>`<tr class="fr"><td><input class="o" value="${esc(f.o??D.s.origin)}" placeholder="Origin"></td><td><input class="t" value="${esc(f.t)}" placeholder="Destination"></td><td style="width:80px"><input class="km" type="number" min="0" step="any" value="${f.km??''}"></td><td style="width:80px"><input class="rt" type="number" min="0" step="any" value="${f.rate??D.s.rate}"></td><td class="amt">0</td><td><button type="button" class="btn sm red" onclick="this.closest('tr').remove();upd()">×</button></td></tr>`;
+
+function form(m){const q=editId?D.q.find(x=>x.id===editId):null;
+if(editId&&!q){go('list');return}
+m.innerHTML=`<h2>${q?'Edit':'Create'} Quotation</h2><form id="f" onsubmit="return false"><div class="card"><div class="grid">
+<div><label>Customer Name *</label><input id="n" list="cl" value="${esc(q?.name)}"><datalist id="cl">${D.c.map(c=>`<option value="${esc(c.name)}">`).join('')}</datalist></div>
+<div><label>Event</label><input id="e" value="${esc(q?.event)}"></div>
+<div><label>Delivery Address</label><input id="a" value="${esc(q?.addr)}"></div>
+<div><label>Delivery Date</label><input id="dt" type="date" value="${esc(q?.date)}"></div></div></div>
+<div class="card"><h3 style="margin:0 0 8px">Rental Items</h3><div class="scroll"><table class="lines"><thead><tr><th>Description</th><th>Qty</th><th>Unit Price</th><th>Amount</th><th></th></tr></thead><tbody id="items">${(q?.items||[{}]).map(itemRow).join('')}</tbody></table></div>
+<button type="button" class="btn sm" id="ai" style="margin-top:8px">+ Add Item</button></div>
+<div class="card"><h3 style="margin:0 0 8px">Delivery Fee</h3><div class="scroll"><table class="lines"><thead><tr><th>Origin</th><th>Destination</th><th>Km</th><th>Rate/Km</th><th>Amount</th><th></th></tr></thead><tbody id="fees">${(q?.fees||[{}]).map(feeRow).join('')}</tbody></table></div>
+<button type="button" class="btn sm" id="af" style="margin-top:8px">+ Add Delivery Row</button></div>
+<div class="card"><label>Notes</label><textarea id="nt" rows="2">${esc(q?q.notes:D.s.note)}</textarea>
+<p style="font-size:18px;margin:12px 0 0"><b>Subtotal:</b> ₱<span id="st">0</span> &nbsp; <b>Delivery:</b> ₱<span id="ft">0</span> &nbsp; <b>Grand Total:</b> ₱<span id="gt">0</span></p></div>
+<div class="row" style="margin-bottom:16px"><button class="btn" id="sv">Save Quotation</button><button class="btn" id="pr">Print</button><button class="btn" id="dl">Download PDF</button><button class="btn red" id="cx">Cancel</button></div></form>
+<h3 style="font-family:Cinzel,serif">Live Preview</h3><div class="scroll" id="pv"></div>`;
+$('#ai').onclick=()=>{$('#items').insertAdjacentHTML('beforeend',itemRow())};
+$('#af').onclick=()=>{$('#fees').insertAdjacentHTML('beforeend',feeRow())};
+$('#f').oninput=upd;
+$('#n').onchange=()=>{const c=D.c.find(c=>c.name.toLowerCase()===$('#n').value.trim().toLowerCase());if(c&&!$('#a').value){$('#a').value=c.addr||'';upd()}};
+$('#sv').onclick=()=>{const o=get();if(!o.name.trim())return toast('Customer name is required');
+const i=D.q.findIndex(x=>x.id===o.id);i>=0?D.q[i]=o:D.q.push(o);
+if(!D.c.some(c=>c.name.toLowerCase()===o.name.trim().toLowerCase()))D.c.push({id:uid(),name:o.name.trim(),phone:'',addr:o.addr});
+save();toast('Quotation saved');go('list')};
+$('#pr').onclick=()=>printQ(get());$('#dl').onclick=()=>dlQ(get());$('#cx').onclick=()=>go('list');
+upd()}
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+function get(){return{id:editId||(window._nid??=uid()),name:$('#n').value,event:$('#e').value,addr:$('#a').value,date:$('#dt').value,notes:$('#nt').value,
+items:[...document.querySelectorAll('.ir')].map(r=>({d:r.querySelector('.d').value,q:r.querySelector('.q').value,u:r.querySelector('.u').value})),
+fees:[...document.querySelectorAll('.fr')].map(r=>({o:r.querySelector('.o').value,t:r.querySelector('.t').value,km:r.querySelector('.km').value,rate:r.querySelector('.rt').value}))}}
+function upd(){const o=get();
+document.querySelectorAll('.ir').forEach((r,i)=>r.querySelector('.amt').textContent=M(N(o.items[i].q)*N(o.items[i].u)));
+document.querySelectorAll('.fr').forEach((r,i)=>r.querySelector('.amt').textContent=M(N(o.fees[i].km)*N(o.fees[i].rate)));
+$('#st').textContent=M(sub(o));$('#ft').textContent=M(feeT(o));$('#gt').textContent=M(grand(o));
+$('#pv').innerHTML=docHTML(o);fit()}
+
+function cust(m){m.innerHTML=`<h2>Customers</h2><div class="card"><div class="grid"><div><label>Name *</label><input id="cn"></div><div><label>Phone</label><input id="cp"></div><div><label>Address</label><input id="ca"></div></div><button class="btn" id="cadd" style="margin-top:12px">+ Add Customer</button></div>`+
+(D.c.length?`<div class="scroll"><table class="list"><thead><tr><th>Name</th><th>Phone</th><th>Address</th><th>Quotations</th><th>Actions</th></tr></thead><tbody>${D.c.map(c=>`<tr><td>${esc(c.name)}</td><td>${esc(c.phone)}</td><td>${esc(c.addr)}</td><td>${D.q.filter(q=>q.name.toLowerCase()===c.name.toLowerCase()).length}</td><td><div class="row"><button class="btn sm" onclick="newFor('${c.id}')">New Quotation</button><button class="btn sm red" onclick="delC('${c.id}')">Delete</button></div></td></tr>`).join('')}</tbody></table></div>`:`<div class="card empty"><h3>No customers yet</h3><p>Add one above, or save a quotation to add its customer automatically.</p></div>`);
+$('#cadd').onclick=()=>{const n=$('#cn').value.trim();if(!n)return toast('Name is required');D.c.push({id:uid(),name:n,phone:$('#cp').value,addr:$('#ca').value});save();render()}}
+function newFor(id){const c=D.c.find(x=>x.id===id);go('new');$('#n').value=c.name;$('#a').value=c.addr||'';upd()}
+function delC(id){if(confirm('Delete this customer? Their quotations are kept.')){D.c=D.c.filter(c=>c.id!==id);save();render()}}
+
+function set(m){const s=D.s;m.innerHTML=`<h2>Settings</h2><div class="card"><h3 style="margin-top:0">Quotation Footer & Defaults</h3><div class="grid">
+<div><label>Tagline</label><input id="s1" value="${esc(s.tag)}"></div><div><label>Phone</label><input id="s2" value="${esc(s.phone)}"></div><div><label>Facebook Page</label><input id="s3" value="${esc(s.fb)}"></div>
+<div><label>Default Origin</label><input id="s4" value="${esc(s.origin)}"></div><div><label>Default Rate per Km</label><input id="s5" type="number" value="${esc(s.rate)}"></div></div>
+<label style="margin-top:12px">Default Note</label><textarea id="s6" rows="2">${esc(s.note)}</textarea><button class="btn" id="ssv" style="margin-top:12px">Save Settings</button></div>
+<div class="card"><h3 style="margin-top:0">Data Backup</h3><p style="font-size:13px;color:#555">Data is stored in this browser only. Export a backup regularly.</p><div class="row"><button class="btn" id="ex">Export Backup</button><button class="btn" onclick="$('#imf').click()">Import Backup</button><input type="file" id="imf" accept=".json" hidden><button class="btn red" id="clr">Delete All Data</button></div></div>`;
+$('#ssv').onclick=()=>{D.s={tag:$('#s1').value,phone:$('#s2').value,fb:$('#s3').value,origin:$('#s4').value,rate:$('#s5').value,note:$('#s6').value};save();toast('Settings saved')};
+$('#ex').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(D)],{type:'application/json'}));a.download='dream-quest-backup.json';a.click()};
+$('#imf').onchange=e=>{const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!Array.isArray(x.q)||!Array.isArray(x.c))throw 0;D={...DEF,...x,s:{...DEF.s,...x.s}};save();toast('Backup imported');render()}catch(_){toast('Invalid backup file')}};r.readAsText(e.target.files[0])};
+$('#clr').onclick=()=>{if(confirm('Delete ALL quotations, customers and settings? This cannot be undone.')){D=structuredClone(DEF);save();go('dash')}}}
+
+/* ---------- actions ---------- */
+const find=x=>typeof x==='string'?D.q.find(q=>q.id===x):x;
+function viewQ(id){const q=find(id);$('#mbar').innerHTML=`<button class="btn" onclick="go('edit','${q.id}');closeM()">Edit</button><button class="btn" onclick="printQ('${q.id}')">Print</button><button class="btn" onclick="dlQ('${q.id}')">Download</button><button class="btn red" onclick="closeM()">Close</button>`;$('#mbody').innerHTML=docHTML(q);$('#modal').classList.add('on');fit()}
+function closeM(){$('#modal').classList.remove('on')}
+function delQ(id){if(confirm('Delete this quotation?')){D.q=D.q.filter(q=>q.id!==id);save();toast('Quotation deleted');render()}}
+function printQ(x){$('#pa').innerHTML=docHTML(find(x));setTimeout(()=>print(),150)}
+async function dlQ(x){const q=find(x);
+if(!window.html2canvas||!window.jspdf){toast('Opening print dialog — choose "Save as PDF"');return printQ(q)}
+const pa=$('#pa');pa.innerHTML=docHTML(q);pa.classList.add('cap');
+try{await document.fonts.ready;const el=pa.firstElementChild;el.style.setProperty('--z',1);
+const c=await html2canvas(el,{scale:2,backgroundColor:'#fff'});
+const w=210,h=c.height*w/c.width,p=new jspdf.jsPDF('p','mm',[w,Math.max(h,297)]);
+p.addImage(c.toDataURL('image/jpeg',.95),'JPEG',0,0,w,h);
+p.save('Quotation-'+(q.name||'customer').replace(/[^\w]+/g,'_')+'.pdf');toast('PDF downloaded')}
+catch(e){toast('Download failed — using print instead');printQ(q)}
+pa.classList.remove('cap')}
+go('dash');
+</script></body></html>
